@@ -1,20 +1,21 @@
-Function.prototype.my_bind = function(){
-	
-	let self = this
-	let context = Array.prototype.shift.call(arguments)
-	let args = Array.prototype.slice.call(arguments)
-	return function(){
-		self.apply(context,Array.prototype.concat.call(args,Array.prototype.slice.call(arguments)))
+Function.prototype.my_bind = function(context){
+	if(typeof this !== "function"){
+		throw new Error("Function.prototype.bind - what is trying to be bound is not callable")
 	}
+	
+	
+	var self = this
+	var args = Array.prototype.slice.call(arguments,1)
+	
+	var fNOP = function(){}
+	
+	var fBound = function(){
+		var bindArgs = Array.prototype.slice.call(arguments)
+		return self.apply(this instanceof fNOP ? this : context,args.concat(bindArgs))
+		
+	}
+	
+	fNOP.prototype = this.prototype
+	fBound.prototype = new fNOP()
+	return fBound
 }
-
-
-function a(m, n, o) {
-    console.log(this.name + ' ' + m + ' ' + n + ' ' + o);
-  }
-
-  var b = {
-    name: 'kong'
-  };
-
-  a.my_bind(b, 7, 8)(9); // kong 7 8 9
